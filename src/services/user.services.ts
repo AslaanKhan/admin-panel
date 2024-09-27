@@ -8,3 +8,12 @@ export const getAllUsers = async () => {
         console.error(error);
     }
 }
+
+export const getUserById = async (id: string) => {
+    try {
+        const response = await axiosInstance.get(`/users/${id}`);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+}
