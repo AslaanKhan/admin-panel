@@ -37,6 +37,8 @@ type DataTableProps<T> = {
   filterField?: string;
   filterPlaceholder?: string;
   onRowSelect?: (selectedRows: T[]) => void; // Optional callback for row selection
+  onCreateRecord?: () => void;
+  deleteRow?: (selectedRows: T[]) => void;
 };
 
 export function DataTable<T>({
@@ -45,6 +47,8 @@ export function DataTable<T>({
   filterPlaceholder = "Filter...",
   filterField = 'email',
   onRowSelect,
+  onCreateRecord,
+  deleteRow = () => {}
 }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -81,9 +85,19 @@ export function DataTable<T>({
     },
   });
 
+
+
+  const deleteSelectedRows = () => {
+      const selectedRows = table
+        .getSelectedRowModel()
+        .rows.map((row) => row.original);
+      selectedRows.map((row:any)=>deleteRow(row))
+      
+  };
+
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+       <div className="flex items-center py-4">
         <Input
           placeholder={filterPlaceholder}
           value={(table.getColumn(filterField)?.getFilterValue() as string) ?? ""}
@@ -92,6 +106,20 @@ export function DataTable<T>({
           }
           className="max-w-sm"
         />
+        {onCreateRecord && <Button
+          variant="default" // Use your preferred variant
+          onClick={onCreateRecord}
+          className="ml-4" // Adjust spacing as needed
+        >
+          Create New
+        </Button>}
+        <Button
+          variant="destructive" // Use your preferred variant
+          onClick={deleteSelectedRows}
+          className="ml-4" // Adjust spacing as needed
+        >
+          Delete
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -100,9 +128,9 @@ export function DataTable<T>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
+              ?.getAllColumns()
+              ?.filter((column) => column.getCanHide())
+              ?.map((column) => (
                 <DropdownMenuCheckboxItem
                   key={column.id}
                   className="capitalize"
@@ -118,7 +146,7 @@ export function DataTable<T>({
       <div className="rounded-md border h-[80vh] overflow-auto">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table?.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
@@ -135,8 +163,8 @@ export function DataTable<T>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
+            {table?.getRowModel().rows.length ? (
+              table?.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
@@ -166,23 +194,23 @@ export function DataTable<T>({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table?.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table?.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className="space-x-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => table?.previousPage()}
+            disabled={!table?.getCanPreviousPage()}
           >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => table?.nextPage()}
+            disabled={!table?.getCanNextPage()}
           >
             Next
           </Button>

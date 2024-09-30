@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { FaTachometerAlt, FaUsers, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { FaTachometerAlt, FaUsers, FaCog, FaSignOutAlt, FaList } from "react-icons/fa";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { FiMenu } from "react-icons/fi";
 import clsx from "clsx";
 import { AspectRatio } from "../ui/aspect-ratio";
+import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import Image from "next/image";
 import {
   Command,
@@ -34,7 +35,8 @@ const MenuOptions = ({ defaultOpen = false }: Props) => {
   const sidebarOpt = [
     { name: "Dashboard", path: "/dashboard", icon: <FaTachometerAlt /> },
     { name: "Users", path: "/dashboard/users", icon: <FaUsers /> },
-    { name: "Products", path: "/dashboard/products", icon: <FaUsers /> },
+    { name: "Products", path: "/dashboard/products", icon: <MdOutlineProductionQuantityLimits /> },
+    { name: "Categories", path: "/dashboard/categories", icon: <FaList />},
     { name: "Orders", path: "/dashboard/orders", icon: <FaUsers /> },
     { name: "Settings", path: "/settings", icon: <FaCog /> },
     {

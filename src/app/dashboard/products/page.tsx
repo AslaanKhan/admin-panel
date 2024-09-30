@@ -1,29 +1,42 @@
 "use client";
 import { DataTable } from "@/components/global/dataTable";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { deleteProductById, getAllProducts, updateStock } from "@/services/porducts.services";
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { getAllProducts } from "@/services/porducts.services";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ColumnDef } from "@tanstack/react-table";
+import Swal from "sweetalert2";
 
-export type User = {
-  _id: string;
-  name?: string;
-  email?: string;
-  address?: string;
-  number: string;
-  isAdmin: boolean;
-};
+export type Product = {
+    _id: string,
+    title: string,
+    price: number,
+    description: string,
+    image: [
+        {
+            path: string
+            "_id": string
+        }
+    ],
+    category: {
+      name: string
+      id: string
+    },
+    isAvailable: boolean,
+    createdAt: Date,
+    updatedAt: Date,
+    __v: number
+}
 
-export default function User() {
-  const [data, setUsers] = React.useState<User[]>([]);
+export default function Product() {
+  const [data, setProducts] = React.useState<Product[]>([]);
   const router = useRouter()
 
-  const columns: ColumnDef<User>[] = [
+  const columns: ColumnDef<Product>[] = [
     {
       id: "select",
       header: ({ table }:any) => (
@@ -83,22 +96,21 @@ export default function User() {
               }`}
             >
               {row.getValue("description")}
-              {isExpanded ? "Show less" : "Show more"}
             </div>
           </div>
         );
       },
     },
     {
-      accessorKey: "category",
+      accessorKey: "category.name",
       header: "Category",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("category")}</div>
+        <div className="capitalize">{row.original.category?.name}</div>
       ),
     },
     {
       accessorKey: "isAvailable",
-      header: "Available",
+      header: "In stock",
       cell: ({ row }) => (
         <div className="capitalize">
           {row.getValue("isAvailable") ? "yes" : "no"}
@@ -119,8 +131,11 @@ export default function User() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText("")}>
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original._id)}>
                 Copy product ID
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={async() => await updateStock(row.original._id, {isAvailable: !row.original?.isAvailable}).then(() => fetchData())}>
+                Mark {row.original.isAvailable ? `out of` : 'in'} stock
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -130,7 +145,6 @@ export default function User() {
               >
                 View or Edit product
               </DropdownMenuItem>
-              <DropdownMenuItem>View user orders</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -138,18 +152,40 @@ export default function User() {
     },
   ];
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getAllProducts();
-        setUsers(response?.data?.products);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const response = await getAllProducts();
+      setProducts(response?.data?.products);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  React.useEffect(() => {    
     fetchData();
   }, []);  
 
-  return <DataTable<User> columns={columns} data={data} filterField="title" />;
+  const createNewProduct = () => {
+    router.push("/dashboard/products/new");
+  }
+
+  const deleteProduct = async (selectedRow:any) => {
+    await Swal.fire({
+      title: "Are you sure? This action cannot be undone.",
+      text: "Once deleted, you will not be able to recover this product",
+      inputLabel: "Delete Product",
+      showCancelButton: true,
+      confirmButtonText: "Submit",
+      cancelButtonText: "Cancel",
+      icon: "error",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await deleteProductById(selectedRow?._id);
+        fetchData();
+      }
+    })
+  }
+
+  return <DataTable<Product> columns={columns} data={data} filterField="title" onCreateRecord={createNewProduct} deleteRow={deleteProduct} />;
 }
 
