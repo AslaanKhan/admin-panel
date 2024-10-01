@@ -1,4 +1,5 @@
 'use client'
+import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface AuthContextType {
@@ -10,16 +11,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-
-  useEffect(() => {
-    // Check local storage for auth status on mount
-    const token = localStorage.getItem('token');
-    setIsAuthenticated(!token);
-  }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const router = useRouter();
+ 
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/'); // Adjust this to your login route
+    }
+  }, [isAuthenticated, router]);
 
   const login = () => {
-    localStorage.setItem('token', 'your_token_value'); // Set your token value
     setIsAuthenticated(true);
   };
 

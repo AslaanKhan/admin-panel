@@ -10,7 +10,7 @@ import { DateRangePicker } from "@/components/global/DateRangePicker";
 type Props = {};
 
 const Dashboard = (props: Props) => {
-  useProtectedRoute();
+  
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 

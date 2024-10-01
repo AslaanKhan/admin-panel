@@ -155,7 +155,7 @@ export default function Product() {
   const fetchData = async () => {
     try {
       const response = await getAllProducts();
-      setProducts(response?.data?.products);
+      setProducts(response?.products);
     } catch (error) {
       console.error(error);
     }

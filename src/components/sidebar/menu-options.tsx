@@ -19,6 +19,8 @@ import {
 } from "../ui/command";
 import Link from "next/link";
 import { Separator } from "../ui/separator";
+import { useAuth } from "@/hooks/authContext";
+import { BiSolidOffer } from "react-icons/bi";
 
 type Props = {
   defaultOpen?: boolean;
@@ -30,18 +32,20 @@ type Props = {
 const MenuOptions = ({ defaultOpen = false }: Props) => {
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+  const {logout} = useAuth()
   const pathname = usePathname(); // Call usePathname here
 
   const sidebarOpt = [
     { name: "Dashboard", path: "/dashboard", icon: <FaTachometerAlt /> },
     { name: "Users", path: "/dashboard/users", icon: <FaUsers /> },
     { name: "Products", path: "/dashboard/products", icon: <MdOutlineProductionQuantityLimits /> },
+    { name: "Offers", path: "/dashboard/offers", icon: <BiSolidOffer />},
     { name: "Categories", path: "/dashboard/categories", icon: <FaList />},
     { name: "Orders", path: "/dashboard/orders", icon: <FaUsers /> },
     { name: "Settings", path: "/settings", icon: <FaCog /> },
     {
       name: "Logout",
-      path: "/login",
+      path: "/",
       action: "logout",
       icon: <FaSignOutAlt />,
     },
@@ -52,11 +56,6 @@ const MenuOptions = ({ defaultOpen = false }: Props) => {
   }, []);
 
   const openState = useMemo(() => ({ open: defaultOpen }), [defaultOpen]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/login");
-  };
 
   if (!isMounted) return null; // Ensure hooks are called before this return
 
@@ -117,7 +116,7 @@ const MenuOptions = ({ defaultOpen = false }: Props) => {
                             ? (e) => {
                                 e.preventDefault(); // Prevent default link behavior
                                 if (confirm("Are you sure you want to logout?")) {
-                                  handleLogout();
+                                  logout();
                                 }
                               }
                             : undefined
