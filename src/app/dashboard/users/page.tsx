@@ -27,7 +27,7 @@ export default function User() {
       id: "select",
       header: ({ table }) => (
         <Checkbox
-          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && true)}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />

@@ -38,7 +38,7 @@ export default function Offers() {
             id: "select",
             header: ({ table }) => (
                 <Checkbox
-                    checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+                    checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && true)}
                     onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                     aria-label="Select all"
                 />
