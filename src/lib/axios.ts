@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   // baseURL: `http://localhost:1337/api`, // Change to your API URL
-  baseURL: `http://mongonode-production.up.railway.app/api`, // Change to your API URL
+  baseURL: `https://mongonode-production.up.railway.app/api`, // Change to your API URL
 });
 
 let activeRequests = 0;
