@@ -34,7 +34,7 @@ const LoginPage = () => {
             <input
               type="text"
               id="number"
-              value={number}
+              defaultValue={number}
               onChange={(e) => setNumber(e.target.value)}
               required
               className="block w-full p-2 mt-1 border rounded-md focus:ring focus:ring-blue-200"
