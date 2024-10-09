@@ -3,7 +3,7 @@ import React from 'react';
 
 type MetricsCardProps = {
   title: string;
-  value: number;
+  value: any;
   icon: React.ReactNode;
 };
 

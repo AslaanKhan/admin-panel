@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getUserById } from "@/services/user.services";
 import { User } from "../page";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 type props = {
   params:{ 
@@ -51,7 +52,34 @@ const UserDetails = ({ params }: props) => {
 
   return (
     <div className="max-w-lg mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">{isEditing ? "Edit User" : "User Details"}</h1>
+       <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              className="cursor-pointer"
+              onClick={() => router.push("/dashboard")}
+            >
+              Home
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              className="cursor-pointer"
+              onClick={() => router.back()}
+            >
+              Users
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>
+              User Details
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <h1 className="text-2xl font-bold my-4">{isEditing ? "Edit User" : "User Details"}</h1>
       <Separator className="mb-4" />
       <div className="space-y-4">
         <Input

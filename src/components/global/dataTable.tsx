@@ -91,7 +91,7 @@ export function DataTable<T>({
       const selectedRows = table
         .getSelectedRowModel()
         .rows.map((row) => row.original);
-      selectedRows.map((row:any)=>deleteRow(row))
+      deleteRow(selectedRows)
       
   };
 

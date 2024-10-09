@@ -16,34 +16,30 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-interface Product {
+interface Offer {
   _id:string,
   name: string,
-  totalSold: number,
-  revenue: number
+  totalSpent: number,
 }
 
 type Props = {
-  products:Product[];
+  products:Offer[];
 };
 
-const BestSellingProducts = ({ products }: Props) => {
-  const columns: ColumnDef<Product>[] = [
+const Offers = ({ products }: Props) => {
+  const columns: ColumnDef<Offer>[] = [
     // {
     //   accessorKey: "_id",
     //   header: "Id",
     // },
     {
       accessorKey: "name",
-      header: "Product",
+      header: "name",
     },
     {
-      accessorKey: "totalSold",
-      header: "Total Sales",
-    },
-    {
-      accessorKey: "revenue",
-      header: "Revenue",
+      accessorKey: "isActive",
+      header: "Active",
+      cell: ({ row }) => (row.getValue("isActive") ? "Yes" : "No"),
     },
   ]
   const table = useReactTable({
@@ -54,7 +50,7 @@ const BestSellingProducts = ({ products }: Props) => {
 
   return (
     <div className="rounded-md border p-5">
-      <h3 className="text-2xl font-bold text-gray-800 mb-4">Best Selling Products</h3>
+      <h3 className="text-2xl font-bold text-gray-800 mb-4">Offers</h3>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -101,32 +97,4 @@ const BestSellingProducts = ({ products }: Props) => {
   )
 }
 
-
-//   return (
-//     <div className="bg-white p-6 rounded-lg shadow-lg">
-//     <h3 className="text-2xl font-bold text-gray-800 mb-4">Best Selling Products</h3>
-//     <table className="min-w-full border-collapse border border-gray-200">
-//       <thead>
-//         <tr className="bg-gray-100">
-//           <th className="px-4 py-2 text-left text-gray-700 font-semibold">Product Name</th>
-//           <th className="px-4 py-2 text-left text-gray-700 font-semibold">Total Units Sold</th>
-//           <th className="px-4 py-2 text-left text-gray-700 font-semibold">Revenue Generated</th>
-//         </tr>
-//       </thead>
-//       <tbody>
-//         {products?.map((product, index) => (
-//           <tr key={index} className="border-b transition duration-300 hover:bg-gray-100">
-//             <td className="px-4 py-2 text-gray-700">{product.name}</td>
-//             <td className="px-4 py-2 text-gray-600">{product.totalSold}</td>
-//             <td className="px-4 py-2 text-gray-600">${product.revenue.toFixed(2)}</td>
-//           </tr>
-//         ))}
-//       </tbody>
-//     </table>
-//   </div>
-  
-
-//   );
-// };
-
-export default BestSellingProducts;
+export default Offers;

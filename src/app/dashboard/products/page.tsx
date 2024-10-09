@@ -2,8 +2,18 @@
 import { DataTable } from "@/components/global/dataTable";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { deleteProductById, getAllProducts, updateStock } from "@/services/porducts.services";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  deleteProductById,
+  getAllProducts,
+  updateStock,
+} from "@/services/porducts.services";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
@@ -12,34 +22,34 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 
 export type Product = {
-    _id: string,
-    title: string,
-    price: number,
-    description: string,
-    image: [
-        {
-            path: string
-            "_id": string
-        }
-    ],
-    category: {
-      name: string
-      id: string
-    },
-    isAvailable: boolean,
-    createdAt: Date,
-    updatedAt: Date,
-    __v: number
-}
+  _id: string;
+  title: string;
+  price: number;
+  description: string;
+  image: [
+    {
+      path: string;
+      _id: string;
+    }
+  ];
+  category: {
+    name: string;
+    id: string;
+  };
+  isAvailable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+};
 
 export default function Product() {
   const [data, setProducts] = React.useState<Product[]>([]);
-  const router = useRouter()
+  const router = useRouter();
 
   const columns: ColumnDef<Product>[] = [
     {
       id: "select",
-      header: ({ table }:any) => (
+      header: ({ table }: any) => (
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -79,19 +89,21 @@ export default function Product() {
     {
       accessorKey: "price",
       header: "Price",
-      cell: ({ row }) => <div className="capitalize">Rs.{row.getValue("price")}</div>,
+      cell: ({ row }) => (
+        <div className="capitalize">Rs.{row.getValue("price")}</div>
+      ),
     },
     {
       accessorKey: "description",
       header: "Description",
       cell: ({ row }) => {
         const [isExpanded, setIsExpanded] = useState(false);
-  
+
         return (
           <div className="flex items-center">
             <div
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`line-clamp-1 cursor-pointer ${
+              className={`line-clamp-1 max-w-[600px] cursor-pointer ${
                 isExpanded ? "line-clamp-none" : ""
               }`}
             >
@@ -131,11 +143,19 @@ export default function Product() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original._id)}>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(row.original._id)}
+              >
                 Copy product ID
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={async() => await updateStock(row.original._id, {isAvailable: !row.original?.isAvailable}).then(() => fetchData())}>
-                Mark {row.original.isAvailable ? `out of` : 'in'} stock
+              <DropdownMenuItem
+                onClick={async () =>
+                  await updateStock(row.original._id, {
+                    isAvailable: !row.original?.isAvailable,
+                  }).then(() => fetchData())
+                }
+              >
+                Mark {row.original.isAvailable ? `out of` : "in"} stock
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -161,15 +181,15 @@ export default function Product() {
     }
   };
 
-  React.useEffect(() => {    
+  React.useEffect(() => {
     fetchData();
-  }, []);  
+  }, []);
 
   const createNewProduct = () => {
     router.push("/dashboard/products/new");
-  }
+  };
 
-  const deleteProduct = async (selectedRow:any) => {
+  const deleteProduct = async (selectedRow: any) => {
     await Swal.fire({
       title: "Are you sure? This action cannot be undone.",
       text: "Once deleted, you will not be able to recover this product",
@@ -180,12 +200,26 @@ export default function Product() {
       icon: "error",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await deleteProductById(selectedRow?._id);
+        // If selectedRow is an array, map over it and await all delete operations
+        if (Array.isArray(selectedRow)) {
+          await Promise.all(
+            selectedRow.map((row) => deleteProductById(row._id))
+          );
+        } else if (selectedRow) {
+          await deleteProductById(selectedRow._id);
+        }
         fetchData();
       }
-    })
-  }
+    });
+  };
 
-  return <DataTable<Product> columns={columns} data={data} filterField="title" onCreateRecord={createNewProduct} deleteRow={deleteProduct} />;
+  return (
+    <DataTable<Product>
+      columns={columns}
+      data={data}
+      filterField="title"
+      onCreateRecord={createNewProduct}
+      deleteRow={deleteProduct}
+    />
+  );
 }
-
