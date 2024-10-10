@@ -1,14 +1,16 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { FaTachometerAlt, FaUsers, FaCog, FaSignOutAlt, FaList } from "react-icons/fa";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
-import { Button } from "../ui/button";
-import { FiMenu } from "react-icons/fi";
+import { useAuth } from "@/hooks/authContext";
 import clsx from "clsx";
-import { AspectRatio } from "../ui/aspect-ratio";
-import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { BiSolidOffer } from "react-icons/bi";
+import { FaList, FaSignOutAlt, FaTachometerAlt, FaUsers } from "react-icons/fa";
+import { FiMenu } from "react-icons/fi";
+import { MdOutlineProductionQuantityLimits } from "react-icons/md";
+import { AspectRatio } from "../ui/aspect-ratio";
+import { Button } from "../ui/button";
 import {
   Command,
   CommandEmpty,
@@ -17,10 +19,8 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import Link from "next/link";
 import { Separator } from "../ui/separator";
-import { useAuth } from "@/hooks/authContext";
-import { BiSolidOffer } from "react-icons/bi";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
 type Props = {
   defaultOpen?: boolean;
@@ -31,7 +31,6 @@ type Props = {
 
 const MenuOptions = ({ defaultOpen = false }: Props) => {
   const [isMounted, setIsMounted] = useState(false);
-  const router = useRouter();
   const {logout} = useAuth()
   const pathname = usePathname(); // Call usePathname here
 
@@ -54,13 +53,17 @@ const MenuOptions = ({ defaultOpen = false }: Props) => {
     setIsMounted(true);
   }, []);
 
-  const openState = useMemo(() => ({ open: defaultOpen }), [defaultOpen]);
+  const openState = useMemo(
+    () => (defaultOpen ? { open: true } : {}),
+    [defaultOpen]
+  )
 
   if (!isMounted) return null; // Ensure hooks are called before this return
 
   return (
     <Sheet modal={false} {...openState}>
-      <SheetTrigger asChild>
+      <SheetTrigger asChild
+        className="absolute left-4 top-4 z-[100] md:!hidden felx">
         <Button variant="outline" size="icon">
           <FiMenu />
         </Button>

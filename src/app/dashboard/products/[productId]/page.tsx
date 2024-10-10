@@ -121,8 +121,6 @@ const ProductPage = ({ params: { productId } }: Props) => {
         id: selected._id,
       },
     });
-
-    console.log(selected)
   };
 
   return (

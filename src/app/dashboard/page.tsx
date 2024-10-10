@@ -10,6 +10,9 @@ import { getDashboardData } from "@/services/dashboard.services";
 import TopCustomers from "./components/TopCustomers";
 import Offers from "./components/Offers";
 import { useRouter } from "next/navigation";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
+import { useSwipeable } from "react-swipeable";
 
 type Props = {};
 
@@ -19,6 +22,32 @@ const Dashboard = (props: Props) => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const router = useRouter()
   useProtectedRoute()
+  const metricsData = [
+    {
+      title: "Total Users",
+      value: metrics?.users,
+      icon: <FaUser className="text-blue-500 text-3xl" />,
+      route: "/dashboard/users",
+    },
+    {
+      title: "Total Products",
+      value: metrics?.products,
+      icon: <FaBox className="text-green-500 text-3xl" />,
+      route: "/dashboard/products",
+    },
+    {
+      title: "Total Orders",
+      value: metrics?.orders?.total,
+      icon: <FaShoppingCart className="text-yellow-500 text-3xl" />,
+      route: "/dashboard/orders",
+    },
+    {
+      title: "Total Revenue Generated",
+      value: `Rs.${metrics?.totalRevenue}`,
+      icon: <FaRupeeSign className="text-yellow-500 text-3xl" />,
+      route: null, // No route for this metric
+    },
+  ];
 
   const fetchMetrics = async () => {
     try {
@@ -33,13 +62,50 @@ const Dashboard = (props: Props) => {
     fetchMetrics();
   }, [endDate]);
 
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => document.getElementById("carousel-next")?.click(),
+    onSwipedRight: () => document.getElementById("carousel-previous")?.click(),
+    preventScrollOnSwipe: true,
+  });
+
+  const MetricsCarousel = ({ metrics }) => (
+    <Carousel className="w-full max-w-xs mx-auto">
+      <CarouselContent>
+        <CarouselItem>
+          <div className="p-1">
+            <BestSellingProducts products={metrics?.bestSelling} />
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="p-1">
+            <TopCustomers products={metrics?.topCustomers} />
+          </div>
+        </CarouselItem>
+        <CarouselItem>
+          <div className="p-1">
+            <Offers products={metrics?.Offers} />
+          </div>
+        </CarouselItem>
+      </CarouselContent>
+    </Carousel>
+  );
+
+  const MetricsContent = ({ metrics }) => (
+    <div className="gap-4 grid grid-cols-3">
+      <BestSellingProducts products={metrics?.bestSelling} />
+      <TopCustomers products={metrics?.topCustomers} />
+      <Offers products={metrics?.Offers} />
+    </div>
+  );
+
+
   if (!metrics) {
     return <div>No Data to display</div>;
   }
 
   return (
-    <div className="mb-4">
-      <div className="p-6 bg-gray-100">
+    <div className="my-4">
+      <div className="md:p-6 bg-gray-100">
         <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
         <DateRangePicker
           startDate={startDate}
@@ -47,43 +113,50 @@ const Dashboard = (props: Props) => {
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-4">
-          <MetricsCard
-            title="Total Users"
-            value={metrics?.users}
-            icon={<FaUser className="text-blue-500 text-3xl" />}
-            onclick={() => { router.push('/dashboard/users') }}
-          />
-          <MetricsCard
-            title="Total Products"
-            value={metrics?.products}
-            icon={<FaBox className="text-green-500 text-3xl" />}
-            onclick={() => { router.push('/dashboard/products') }}
-          />
-          <MetricsCard
-            title="Total Orders"
-            value={metrics?.orders?.total}
-            icon={<FaShoppingCart className="text-yellow-500 text-3xl" />}
-            onclick={() => { router.push('/dashboard/orders') }}
-          />
-          <MetricsCard
-            title="Total Revenue Generated"
-            value={`Rs.${metrics?.totalRevenue}`}
-            icon={<FaRupeeSign className="text-yellow-500 text-3xl" />}
-          />
+        <div className="mt-4">
+          <div className="block md:hidden">
+            <Carousel {...swipeHandlers} className="w-full">
+              <CarouselContent>
+                {metricsData.map((metric, index) => (
+                  <CarouselItem key={index}>
+                    <MetricsCard
+                      title={metric.title}
+                      value={metric.value}
+                      icon={metric.icon}
+                      onclick={metric.route ? () => router.push(metric.route) : undefined}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+          <div className="hidden md:grid grid-cols-1 sm:grid-cols-4 gap-4 mt-4">
+            {metricsData.map((metric, index) => (
+              <MetricsCard
+                key={index}
+                title={metric.title}
+                value={metric.value}
+                icon={metric.icon}
+                onclick={metric.route ? () => router.push(metric.route) : undefined}
+              />
+            ))}
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 m-2">
-        <div className="grid grid-cols-3 gap-4">
-          <BestSellingProducts products={metrics?.bestSelling} />
-          <TopCustomers products={metrics?.topCustomers} />
-          <Offers products={metrics?.Offers} />
+      <div className="grid grid-cols-1 gap-4 my-2">
+        <div className="">
+          <div className="md:hidden">
+            <MetricsCarousel {...swipeHandlers} metrics={metrics} />
+          </div>
+          <div className="hidden md:block">
+            <MetricsContent metrics={metrics} />
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
           <div className="max-w-2xl">
             <DashboardMetrics />
           </div>
-          <div className="max-w-2xl">
+          <div className="max-w-2xl mb-4">
             <DashboardMetrics />
           </div>
         </div>
@@ -92,4 +165,4 @@ const Dashboard = (props: Props) => {
   );
 };
 
-export default Dashboard;
+export default Dashboard
