@@ -39,7 +39,7 @@ const BestSellingProducts = ({ products }: Props) => {
     },
     {
       accessorKey: "totalSold",
-      header: "Total Sales",
+      header: "Units Sold",
     },
     {
       accessorKey: "revenue",

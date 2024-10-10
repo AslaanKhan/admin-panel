@@ -54,9 +54,14 @@ export default function Offers() {
             enableHiding: false,
         },
         {
+            accessorKey: "code",
+            header: "Name / Code",
+            cell: ({ row }) => <div className="text-center">{row?.original?.code}</div>, // Display product names
+        },
+        {
             accessorKey: "productNames",
             header: "Products",
-            cell: ({ row }) => <div className="text-center">{row?.original?.productIds.map((product)=>(`${product.productName}, `))}</div>, // Display product names
+            cell: ({ row }) => <div className="text-center">{row?.original?.productIds.map((product, i)=>(`${product.productName}${row?.original?.productIds.length - 1 > i  ? ' ,' : '' }`))}</div>, // Display product names
         },
         {
             accessorKey: "discountPercentage",

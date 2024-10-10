@@ -182,7 +182,7 @@ const ProductPage = ({ params: { productId } }: Props) => {
             type="number"
             value={product?.price}
             onChange={(e) =>
-              setProduct({ ...product, price: parseFloat(e.target.value) })
+              setProduct({ ...product, price: Number(e.target.value) })
             }
             disabled={!isEditing && !createProductState}
             className={errors.price ? "border-red-500" : ""}

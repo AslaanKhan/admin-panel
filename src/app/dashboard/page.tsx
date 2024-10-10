@@ -9,6 +9,7 @@ import { DateRangePicker } from "@/components/global/DateRangePicker";
 import { getDashboardData } from "@/services/dashboard.services";
 import TopCustomers from "./components/TopCustomers";
 import Offers from "./components/Offers";
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
@@ -16,10 +17,12 @@ const Dashboard = (props: Props) => {
   const [metrics, setMetrics] = useState<any>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const router = useRouter()
+  useProtectedRoute()
 
   const fetchMetrics = async () => {
     try {
-      const response = await getDashboardData(startDate, endDate); // Pass startDate and endDate
+      const response = await getDashboardData(startDate, endDate);
       setMetrics(response);
     } catch (error) {
       console.error(error);
@@ -30,10 +33,6 @@ const Dashboard = (props: Props) => {
     fetchMetrics();
   }, [endDate]);
 
-  useEffect(() => {
-    fetchMetrics();
-  }, []);
-
   if (!metrics) {
     return <div>No Data to display</div>;
   }
@@ -42,31 +41,30 @@ const Dashboard = (props: Props) => {
     <div className="mb-4">
       <div className="p-6 bg-gray-100">
         <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-
-        {/* Date Range Picker */}
         <DateRangePicker
           startDate={startDate}
           endDate={endDate}
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
-
-        {/* Metrics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-4">
           <MetricsCard
             title="Total Users"
             value={metrics?.users}
             icon={<FaUser className="text-blue-500 text-3xl" />}
+            onclick={() => { router.push('/dashboard/users') }}
           />
           <MetricsCard
             title="Total Products"
             value={metrics?.products}
             icon={<FaBox className="text-green-500 text-3xl" />}
+            onclick={() => { router.push('/dashboard/products') }}
           />
           <MetricsCard
             title="Total Orders"
             value={metrics?.orders?.total}
             icon={<FaShoppingCart className="text-yellow-500 text-3xl" />}
+            onclick={() => { router.push('/dashboard/orders') }}
           />
           <MetricsCard
             title="Total Revenue Generated"
@@ -75,7 +73,6 @@ const Dashboard = (props: Props) => {
           />
         </div>
       </div>
-
       <div className="grid grid-cols-1 gap-4 m-2">
         <div className="grid grid-cols-3 gap-4">
           <BestSellingProducts products={metrics?.bestSelling} />

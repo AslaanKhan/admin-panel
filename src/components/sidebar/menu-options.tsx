@@ -42,7 +42,6 @@ const MenuOptions = ({ defaultOpen = false }: Props) => {
     { name: "Offers", path: "/dashboard/offers", icon: <BiSolidOffer />},
     { name: "Categories", path: "/dashboard/categories", icon: <FaList />},
     { name: "Orders", path: "/dashboard/orders", icon: <FaUsers /> },
-    { name: "Settings", path: "/settings", icon: <FaCog /> },
     {
       name: "Logout",
       path: "/",

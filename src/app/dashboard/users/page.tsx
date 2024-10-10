@@ -66,8 +66,6 @@ export default function User() {
       id: "actions",
       enableHiding: false,
       cell: ({ row }: any) => {
-        const payment = row.original;
-
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -79,7 +77,7 @@ export default function User() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(payment.id)}
+                onClick={() => navigator.clipboard.writeText(row?.original?._id)}
               >
                 Copy user ID
               </DropdownMenuItem>

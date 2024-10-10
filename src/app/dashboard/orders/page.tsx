@@ -3,31 +3,29 @@ import { DataTable } from "@/components/global/dataTable";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { getAllOrders } from "@/services/orders.services";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import { ArrowUpDown } from "lucide-react"
 
-export type Offer = {
+export type Order = {
     _id: string;
-    productIds: string[];
-    discountPercentage?: number;
-    conditions?: {
-        minQuantity?: number;
-        discountPerKg?: number;
-    };
-    startDate: Date;
-    endDate: Date;
-    isActive: boolean;
+    paymentMode: string;
+    paymentStatus?: string;
+    orderStatus?: string
+    createdAt?: Date;
+    amount: string;
 };
 
-export default function Offers() {
-    const [data, setOffers] = useState<Offer[]>([]);
+export default function Order() {
+    const [data, setOrders] = useState<Order[]>([]);
     const router = useRouter();
 
-    const columns: ColumnDef<Offer>[] = [
+    const columns: ColumnDef<Order>[] = [
         {
             id: "select",
             header: ({ table }: any) => (
@@ -48,34 +46,39 @@ export default function Offers() {
             enableHiding: false,
         },
         {
-            accessorKey: "discountPercentage",
-            header: "Discount (%)",
-            cell: ({ row }) => <div>{row.getValue("discountPercentage")}</div>,
+            accessorKey: "_id",
+            header: "Order Id",
+            cell: ({ row }) => <div>{row.getValue("_id")}</div>,
         },
         {
-            accessorKey: "conditions.minQuantity",
-            header: "Min Quantity",
-            cell: ({ row }) => <div>{row.original.conditions?.minQuantity || "N/A"}</div>,
+            accessorKey: "paymentMode",
+            header:"Payment Mode",
+            cell: ({ row }) => <div className="max-w-[60%] m-auto">{row.original.paymentMode}</div>,
         },
         {
-            accessorKey: "conditions.discountPerKg",
-            header: "Discount per KG",
-            cell: ({ row }) => <div>{row.original.conditions?.discountPerKg || "N/A"}</div>,
+            accessorKey: "createdAt",
+            header: ({ column }) => {
+                return (
+                  <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                  >
+                    Placed On
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                )
+              },
+            cell: ({ row }) => <div className="max-w-[80%] m-auto">{`${new Date(row.original.createdAt).toLocaleDateString().split('T')[0]}`}</div>,
         },
         {
-            accessorKey: "startDate",
-            header: "Start Date",
-            cell: ({ row }) => <div>{new Date(row.getValue("startDate")).toLocaleDateString()}</div>,
+            accessorKey: "orderStatus",
+            header: "Status",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("orderStatus")}</div>,
         },
         {
-            accessorKey: "endDate",
-            header: "End Date",
-            cell: ({ row }) => <div>{new Date(row.getValue("endDate")).toLocaleDateString()}</div>,
-        },
-        {
-            accessorKey: "isActive",
-            header: "Active",
-            cell: ({ row }) => <div>{row.getValue("isActive") ? "Yes" : "No"}</div>,
+            accessorKey: "amount",
+            header: "Order amout",
+            cell: ({ row }) => <div>{row.getValue("amount")}</div>,
         },
         {
             id: "actions",
@@ -91,18 +94,18 @@ export default function Offers() {
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original._id)}>
-                            Copy Offer ID
+                            Copy Order ID
                         </DropdownMenuItem>
                         {/* <DropdownMenuItem onClick={async () => await updateOfferStatus(row.original._id, { isActive: !row.original.isActive }).then(() => fetchData())}>
                             Mark {row.original.isActive ? "Inactive" : "Active"}
                         </DropdownMenuItem> */}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => router.push(`/dashboard/offers/${row.original._id}`)}>
-                            View or Edit Offer
+                            View Order
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => deleteOffer(row.original)}>
-                            Delete Offer
+                            Change Order Status
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -112,8 +115,8 @@ export default function Offers() {
 
     const fetchData = async () => {
         try {
-            // const response = await getAllOffers();
-            // setOffers(response?.offers);
+            const response = await getAllOrders();
+            setOrders(response?.order);
         } catch (error) {
             console.error(error);
         }
@@ -123,7 +126,7 @@ export default function Offers() {
         fetchData();
     }, []);
 
-    const deleteOffer = async (selectedRow: Offer) => {
+    const deleteOffer = async (selectedRow: Order) => {
         await Swal.fire({
             title: "Are you sure? This action cannot be undone.",
             text: "Once deleted, you will not be able to recover this offer.",
@@ -139,5 +142,5 @@ export default function Offers() {
         });
     };
 
-    return <DataTable<Offer> columns={columns} data={data} filterField="discountPercentage" />;
+    return <DataTable<Order> columns={columns} data={data} filterField="_id" />;
 }

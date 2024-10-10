@@ -60,7 +60,7 @@ const OfferPage = ({ params: { offerId } }: Props) => {
         isActive: true,
     });
     const [isEditing, setIsEditing] = useState(false);
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [errors, setErrors] = useState<{ [key: string]: any }>({});
     const [products, setProducts] = useState<any>([]);
 
     const fetchOffer = async () => {
@@ -78,27 +78,26 @@ const OfferPage = ({ params: { offerId } }: Props) => {
         if (offerId !== 'new') {
             fetchOffer();
         }
-        setIsEditing(true); // Set editing mode if offerId is provided
+        setIsEditing(true);
     }, [offerId]);
 
     const handleSave = async () => {
         try {
-            console.log(offer)
             offerSchema.parse(offer);
             const response = offerId !== 'new' ? await updateOfferById(offerId, offer)
-            : await createOffer(offer);
+                : await createOffer(offer);
             if (response?.status == 200) {
                 toast.success(response?.message);
                 router.push(`/dashboard/offers/`);
             } else {
                 response?.data.map((error: any) => toast.error(error.message));
             }
-            setErrors({}); // Clear errors on success
+            setErrors({});
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const newErrors = {};
                 error.errors.forEach((e) => {
-                    //   newErrors[e.path[0]] = e.message;
+                      newErrors[e.path[0]] = e.message;
                     toast.error(`${e.path} is ${e.message}`);
                 });
                 setErrors(newErrors);
@@ -113,7 +112,6 @@ const OfferPage = ({ params: { offerId } }: Props) => {
         if (field === "product") {
             updatedProducts[index].product = value._id
             updatedProducts[index].productName = value.title;
-            console.log(offer)
         } else {
             updatedProducts[index][field] = value;
         }
@@ -144,6 +142,11 @@ const OfferPage = ({ params: { offerId } }: Props) => {
         setOffer({ ...offer, productIds: updatedProducts });
     };
 
+    const getAvailableProducts = (index: number) => {
+        const selectedProducts = offer.productIds.map((p: any) => p.product);
+        return products.filter((product: any) => !selectedProducts.includes(product._id) || product._id === offer.productIds[index].product);
+    };
+
     return (
         <div className="p-6 max-w-3xl mx-auto">
             <Breadcrumb>
@@ -172,6 +175,7 @@ const OfferPage = ({ params: { offerId } }: Props) => {
                 {offer?.productIds.map((product: any, index: any) => (
                     <div key={index} className="space-y-2">
                         <label className="block text-sm font-medium">Product</label>
+                        {offer?.productIds?.length > 1 && index === 0 && <p className="text-red-800">It is recomended to not add more than 10 products in a single offer!</p>}
                         <Select
                             onValueChange={(value) => {
                                 const selectedProduct = products.find(
@@ -188,57 +192,60 @@ const OfferPage = ({ params: { offerId } }: Props) => {
                                 <SelectValue placeholder="Select a product" />
                             </SelectTrigger>
                             <SelectContent>
-                                {products?.map((productItem: any) => (
+                                {getAvailableProducts(index).map((productItem: any) => (
                                     <SelectItem key={productItem._id} value={productItem._id}>
                                         {productItem.title}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
-                        {/* {errors.productIds && errors.productIds[index]?.product && (
-              <p className="text-red-500 text-sm">{errors.productIds[index].product}</p>
-            )} */}                        
-                        { offer?.productIds?.length > 1 && <Button variant="destructive" onClick={() => handleRemoveProduct(index)} disabled={!isEditing}>
+                        {errors.productIds && errors.productIds[index].product && (
+                            <p className="text-red-500 text-sm">{errors.productIds[index].product}</p>
+                        )}
+                        {offer?.productIds?.length > 1 && <Button variant="destructive" onClick={() => handleRemoveProduct(index)} disabled={!isEditing}>
                             Remove Product
                         </Button>}
                     </div>
                 ))}
-                <Button onClick={handleAddProduct} disabled={!isEditing}>
+                <Button
+                    onClick={handleAddProduct}
+                    disabled={!isEditing || !offer.productIds[offer.productIds.length - 1].product} // Check if last product is selected
+                >
                     Add Another Product
                 </Button>
 
                 <div>
-                <label className="block text-sm font-medium">Discount Percentage</label>
-                        <Input
-                            type="number"
-                            value={offer?.discountPercentage || ""}
-                            onChange={(e) => setOffer({ ...offer, discountPercentage: parseFloat(e.target.value)})}
-                            disabled={!isEditing || offer?.flatDiscount && offer?.flatDiscount !== ''}
-                        />
+                    <label className="block text-sm font-medium">Discount Percentage</label>
+                    <Input
+                        type="number"
+                        value={offer?.discountPercentage || ""}
+                        onChange={(e) => setOffer({ ...offer, discountPercentage: parseFloat(e.target.value) })}
+                        disabled={!isEditing || offer?.flatDiscount && offer?.flatDiscount !== ''}
+                    />
 
-                        <label className="block text-sm font-medium">Flat Discount</label>
-                        <Input
-                            type="number"
-                            value={offer?.flatDiscount || ""}
-                            onChange={(e) => setOffer({ ...offer, flatDiscount: parseFloat(e.target.value)})}
-                            disabled={!isEditing || offer?.discountPercentage && offer?.discountPercentage !== ''}
-                        />
+                    <label className="block text-sm font-medium">Flat Discount</label>
+                    <Input
+                        type="number"
+                        value={offer?.flatDiscount || ""}
+                        onChange={(e) => setOffer({ ...offer, flatDiscount: parseFloat(e.target.value) })}
+                        disabled={!isEditing || offer?.discountPercentage && offer?.discountPercentage !== ''}
+                    />
 
-                        <label className="block text-sm font-medium">Minimum Quantity</label>
-                        <Input
-                            type="number"
-                            value={offer?.conditions?.minQuantity || ""}
-                            onChange={(e) => setOffer({ ...offer, minQuantity: parseInt(e.target.value)})}
-                            disabled={!isEditing}
-                        />
+                    <label className="block text-sm font-medium">Minimum Quantity</label>
+                    <Input
+                        type="number"
+                        value={offer?.conditions?.minQuantity || ""}
+                        onChange={(e) => setOffer({ ...offer, minQuantity: parseInt(e.target.value) })}
+                        disabled={!isEditing}
+                    />
 
-                        <label className="block text-sm font-medium">Discount per Value</label>
-                        <Input
-                            type="number"
-                            value={offer?.conditions?.discountPerVal || ""}
-                            onChange={(e) => setOffer({ ...offer, discountPerVal: parseFloat(e.target.value)})}
-                            disabled={!isEditing}
-                        />
+                    <label className="block text-sm font-medium">Discount per Value</label>
+                    <Input
+                        type="number"
+                        value={offer?.conditions?.discountPerVal || ""}
+                        onChange={(e) => setOffer({ ...offer, discountPerVal: parseFloat(e.target.value) })}
+                        disabled={!isEditing}
+                    />
 
                     <label className="block text-sm font-medium">Start Date</label>
                     <Input
