@@ -40,7 +40,7 @@ const MenuOptions = ({ defaultOpen = false }: Props) => {
     { name: "Products", path: "/dashboard/products", icon: <MdOutlineProductionQuantityLimits /> },
     { name: "Offers", path: "/dashboard/offers", icon: <BiSolidOffer />},
     { name: "Categories", path: "/dashboard/categories", icon: <FaList />},
-    { name: "Orders", path: "/dashboard/orders", icon: <FaUsers /> },
+    { name: "Orders", path: "/dashboard/orders/order", icon: <FaUsers /> },
     {
       name: "Logout",
       path: "/",

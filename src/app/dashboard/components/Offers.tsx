@@ -23,10 +23,10 @@ interface Offer {
 }
 
 type Props = {
-  products:Offer[];
+  offers:Offer[];
 };
 
-const Offers = ({ products }: Props) => {
+const Offers = ({ offers }: Props) => {
   const columns: ColumnDef<Offer>[] = [
     // {
     //   accessorKey: "_id",
@@ -43,7 +43,7 @@ const Offers = ({ products }: Props) => {
     },
   ]
   const table = useReactTable({
-    data:products,
+    data:offers,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })

@@ -3,7 +3,7 @@ import { DataTable } from "@/components/global/dataTable";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { getAllOrders } from "@/services/orders.services";
+import { getAllOrders, getUserOrders, updateOrder } from "@/services/orders.services";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { ArrowUpDown } from "lucide-react"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 export type Order = {
     _id: string;
@@ -21,9 +22,16 @@ export type Order = {
     amount: string;
 };
 
-export default function Order() {
+type props = {
+    params?: {
+        uId?: string
+    }
+}
+
+export default function Order({ params }:props) {
     const [data, setOrders] = useState<Order[]>([]);
     const router = useRouter();
+    const { uId } = params
 
     const columns: ColumnDef<Order>[] = [
         {
@@ -100,12 +108,16 @@ export default function Order() {
                             Mark {row.original.isActive ? "Inactive" : "Active"}
                         </DropdownMenuItem> */}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => router.push(`/dashboard/offers/${row.original._id}`)}>
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/orders/order/${row.original._id}`)}>
                             View Order
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => deleteOffer(row.original)}>
-                            Change Order Status
+                        <DropdownMenuItem  onClick={async () =>
+                                await updateOrder(row.original._id, {
+                                    orderStatus: row.original?.orderStatus === 'completed' ? "pending" : "completed",
+                                }).then(() => fetchData())
+                            }>
+                            Mark Order as { row?.original?.orderStatus === 'completed' ? "Pending" : "Completed"}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -115,8 +127,8 @@ export default function Order() {
 
     const fetchData = async () => {
         try {
-            const response = await getAllOrders();
-            setOrders(response?.order);
+            const response = uId !== 'order' ? await getUserOrders(uId) : await getAllOrders()
+            setOrders(response?.orders);
         } catch (error) {
             console.error(error);
         }
@@ -126,21 +138,34 @@ export default function Order() {
         fetchData();
     }, []);
 
-    const deleteOffer = async (selectedRow: Order) => {
-        await Swal.fire({
-            title: "Are you sure? This action cannot be undone.",
-            text: "Once deleted, you will not be able to recover this offer.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Delete",
-            cancelButtonText: "Cancel",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                // await deleteOfferById(selectedRow._id);
-                // fetchData();
-            }
-        });
-    };
-
-    return <DataTable<Order> columns={columns} data={data} filterField="_id" />;
+    return  <>
+    { uId !== 'order' && <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              className="cursor-pointer"
+              onClick={() => router.push("/dashboard")}
+            >
+              Home
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              className="cursor-pointer"
+              onClick={() => router.back()}
+            >
+              Users
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>
+              User Orders
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>}
+    <DataTable<Order> columns={columns} data={data} filterField="_id" />
+    </>;;
 }

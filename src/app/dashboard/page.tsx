@@ -18,8 +18,8 @@ type Props = {};
 
 const Dashboard = (props: Props) => {
   const [metrics, setMetrics] = useState<any>();
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(new Date(new Date().setDate(new Date().getDate() - 30)));
+  const [endDate, setEndDate] = useState<Date | null>(new Date());
   const router = useRouter()
   useProtectedRoute()
   const metricsData = [
@@ -39,7 +39,7 @@ const Dashboard = (props: Props) => {
       title: "Total Orders",
       value: metrics?.orders?.total,
       icon: <FaShoppingCart className="text-yellow-500 text-3xl" />,
-      route: "/dashboard/orders",
+      route: "/dashboard/orders/order",
     },
     {
       title: "Total Revenue Generated",
@@ -83,7 +83,7 @@ const Dashboard = (props: Props) => {
         </CarouselItem>
         <CarouselItem>
           <div className="p-1">
-            <Offers products={metrics?.Offers} />
+            <Offers offers={metrics?.Offers} />
           </div>
         </CarouselItem>
       </CarouselContent>
@@ -94,7 +94,7 @@ const Dashboard = (props: Props) => {
     <div className="gap-4 grid grid-cols-3">
       <BestSellingProducts products={metrics?.bestSelling} />
       <TopCustomers products={metrics?.topCustomers} />
-      <Offers products={metrics?.Offers} />
+      <Offers offers={metrics?.Offers} />
     </div>
   );
 
@@ -154,10 +154,10 @@ const Dashboard = (props: Props) => {
         </div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
           <div className="max-w-2xl">
-            <DashboardMetrics />
+            <DashboardMetrics chartData={metrics?.userMetricsByDate} type="users" />
           </div>
           <div className="max-w-2xl mb-4">
-            <DashboardMetrics />
+            <DashboardMetrics chartData={metrics?.productMetricsByDate} type="products" />
           </div>
         </div>
       </div>

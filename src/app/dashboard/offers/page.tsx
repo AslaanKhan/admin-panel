@@ -3,7 +3,7 @@ import { DataTable } from "@/components/global/dataTable";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { getAllOffers } from "@/services/offer.service";
+import { getAllOffers, toggleOffer } from "@/services/offer.service";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
@@ -61,7 +61,7 @@ export default function Offers() {
         {
             accessorKey: "productNames",
             header: "Products",
-            cell: ({ row }) => <div className="text-center">{row?.original?.productIds.map((product, i)=>(`${product.productName}${row?.original?.productIds.length - 1 > i  ? ' ,' : '' }`))}</div>, // Display product names
+            cell: ({ row }) => <div className="text-center">{row?.original?.productIds.map((product, i) => (`${product.productName}${row?.original?.productIds.length - 1 > i ? ' ,' : ''}`))}</div>, // Display product names
         },
         {
             accessorKey: "discountPercentage",
@@ -114,14 +114,23 @@ export default function Offers() {
                         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original._id)}>
                             Copy Offer ID
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={async () =>
+                                await toggleOffer(row.original._id, {
+                                    isActive: !row.original?.isActive,
+                                }).then(() => fetchData())
+                            }
+                        >
+                             {row.original.isActive ? `Deactivate` : "Activate"} Offer
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => router.push(`/dashboard/offers/${row.original._id}`)}>
                             View or Edit Offer
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => deleteOffer(row.original)}>
+                        {/* <DropdownMenuSeparator /> */}
+                        {/* <DropdownMenuItem onClick={() => deleteOffer(row.original)}>
                             Delete Offer
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                     </DropdownMenuContent>
                 </DropdownMenu>
             ),
@@ -130,7 +139,7 @@ export default function Offers() {
 
     const fetchData = async () => {
         try {
-            const response = await getAllOffers();           
+            const response = await getAllOffers();
             setOffers(response?.offers); // Set the new offers state
         } catch (error) {
             console.error("Error fetching offers:", error);

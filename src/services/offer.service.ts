@@ -35,3 +35,12 @@ try {
     console.log(error)
 } 
 }
+
+export const toggleOffer = async (Id:string, Offer:any) => {
+try {
+        const res = await axiosInstance.post(`/offer/${Id}`, Offer)
+        return res.data
+} catch (error) {
+    console.log(error)
+} 
+}

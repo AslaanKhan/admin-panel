@@ -89,7 +89,7 @@ export default function User() {
               >
                 View or Edit user
               </DropdownMenuItem>
-              <DropdownMenuItem>View user orders</DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>router.push(`/dashboard/orders/${row.original._id}`)} >View user orders</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -109,5 +109,5 @@ export default function User() {
     fetchData();
   }, []);  
 
-  return <DataTable<User> columns={columns} data={data} />;
+  return <DataTable<User> columns={columns} data={data} filterField="number" />;
 }

@@ -48,7 +48,7 @@ export function DataTable<T>({
   filterField = 'email',
   onRowSelect,
   onCreateRecord,
-  deleteRow = () => {}
+  deleteRow
 }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -113,13 +113,13 @@ export function DataTable<T>({
         >
           Create New
         </Button>}
-        <Button
+        {deleteRow && <Button
           variant="destructive" // Use your preferred variant
           onClick={deleteSelectedRows}
           className="ml-4" // Adjust spacing as needed
         >
           Delete
-        </Button>
+        </Button>}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

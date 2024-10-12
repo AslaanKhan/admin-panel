@@ -150,7 +150,7 @@ export default function Categories() {
               <DropdownMenuItem
                 onClick={async () => await updateCategory(row.original._id)}
               >
-                Change category name
+                Edit Category
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={async () =>
