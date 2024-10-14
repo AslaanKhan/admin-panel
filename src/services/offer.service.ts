@@ -44,3 +44,12 @@ try {
     console.log(error)
 } 
 }
+
+export const deleteOfferById = async (Id:string) => {
+try {
+        const res = await axiosInstance.delete(`/offers/${Id}`)
+        return res.data
+} catch (error) {
+    console.log(error)
+} 
+}

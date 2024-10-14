@@ -227,7 +227,7 @@ const OfferPage = ({ params: { offerId } }: Props) => {
                     <Input
                         type="number"
                         value={offer?.flatDiscount || ""}
-                        onChange={(e) => setOffer({ ...offer, flatDiscount: parseFloat(e.target.value) })}
+                        onChange={(e) => setOffer({ ...offer, flatDiscount: parseFloat(e.target.value) || 0 })}
                         disabled={!isEditing || offer?.discountPercentage && offer?.discountPercentage !== ''}
                     />
 

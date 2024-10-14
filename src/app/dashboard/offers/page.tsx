@@ -3,12 +3,12 @@ import { DataTable } from "@/components/global/dataTable";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { getAllOffers, toggleOffer } from "@/services/offer.service";
+import { deleteOfferById, getAllOffers, toggleOffer } from "@/services/offer.service";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
 export type Offer = {
@@ -127,10 +127,10 @@ export default function Offers() {
                         <DropdownMenuItem onClick={() => router.push(`/dashboard/offers/${row.original._id}`)}>
                             View or Edit Offer
                         </DropdownMenuItem>
-                        {/* <DropdownMenuSeparator /> */}
-                        {/* <DropdownMenuItem onClick={() => deleteOffer(row.original)}>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => deleteOffer(row.original)}>
                             Delete Offer
-                        </DropdownMenuItem> */}
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             ),
@@ -162,9 +162,8 @@ export default function Offers() {
 
         if (result.isConfirmed) {
             try {
-                // Uncomment and implement the delete offer logic
-                // await deleteOfferById(selectedRow._id);
-                // fetchData();
+                await deleteOfferById(selectedRow._id);
+                fetchData();
                 Swal.fire("Deleted!", "The offer has been deleted.", "success");
             } catch (error) {
                 console.error("Error deleting offer:", error);
